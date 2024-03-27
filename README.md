@@ -1,5 +1,5 @@
 # dead-link
-# Metal Collection Simulation
+# Metal Collection Economy Simulation
 This project simulates an economy based on the scarcity of metal pieces collected over
 time.
 ## Overview
