@@ -1,3 +1,19 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 The issue is likely because the loop condition stops before reaching the full count due to the zero-based indexing logic. We need to ensure that the loop places exactly the number of images specified in `D12`.
 
 Here’s the revised script to ensure that exactly the specified number of images is inserted:
