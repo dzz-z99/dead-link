@@ -1,1 +1,26 @@
+function doGet(e) {
+  const sheetName = (e && e.parameter && e.parameter.sheet) ? e.parameter.sheet : 'DEAD';
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+
+  if (!sheet) {
+    return ContentService.createTextOutput(JSON.stringify({ error: 'Sheet not found' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const data = sheet.getRange(2, 5, 10, 1).getValues(); // Get Column E data from row 2 to row 11
+  const totalPieces = sheet.getRange("D12").getValue(); // Get value from D12
+
+  const jsonData = [];
+  for (let i = 0; i < data.length; i++) {
+    const rowNumber = i + 2;
+    const rowKey = `ColumnE-Row${rowNumber}`;
+    jsonData.push({ [rowKey]: data[i][0] });
+  }
+
+  jsonData.push({ "TotalPieces": totalPieces });
+
+  // Return the JSON data with no CORS restrictions
+  return ContentService.createTextOutput(JSON.stringify(jsonData))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
