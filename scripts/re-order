@@ -1,1 +1,65 @@
-cccccc
+// /scripts/sheets.js
+
+function onEdit(e) {
+  if (!e || !e.range) return;
+
+  const sheet = e.range.getSheet();
+  const range = e.range;
+  const properties = PropertiesService.getScriptProperties();
+
+  // Check if the edited cell is within the range D2:D11
+  if (range.getRow() >= 2 && range.getRow() <= 11 && range.getColumn() == 4) {
+    // Sort the range A2:G11 based on column D values in descending order
+    const targetRange = sheet.getRange('A2:G11');
+    targetRange.sort({ column: 4, ascending: false });
+
+    // Set the flag indicating the reordering is complete
+    properties.setProperty('reorderingDone', 'true');
+  }
+
+  // Check if the edit is within column D and rows 2 to 11
+  if (range.getColumn() === 4 && range.getRow() >= 2 && range.getRow() <= 11) {
+    // If reordering is done, proceed to resize columns
+    if (properties.getProperty('reorderingDone') === 'true') {
+      resizeColumns(sheet);
+      // Reset the flag
+      properties.setProperty('reorderingDone', 'false');
+    }
+  }
+}
+
+function resizeColumns(sheet) {
+  const startRow = 2;
+  const endRow = 11;
+  const startCol = 4; // Column D
+  const columns = ["H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
+  const fixedWidths = { "H": 200, "Q": 21 };
+
+  // Retrieve the values from column D (D2 to D11)
+  const values = sheet.getRange(startRow, startCol, endRow - startRow + 1, 1).getValues().flat();
+
+  // Define the maximum and minimum values
+  const maxValue = Math.max(...values);
+  const minValue = Math.min(...values);
+
+  // Calculate the width scaling factor
+  const fixedWidthDiff = fixedWidths.H - fixedWidths.Q;
+  const valueDiff = maxValue - minValue;
+
+  // Iterate through columns H to Q
+  for (let i = 0; i < columns.length; i++) {
+    const col = columns[i];
+
+    // Set fixed widths for columns H and Q
+    if (col === "H") {
+      sheet.setColumnWidth(sheet.getRange(col + startRow).getColumn(), fixedWidths.H);
+    } else if (col === "Q") {
+      sheet.setColumnWidth(sheet.getRange(col + startRow).getColumn(), fixedWidths.Q);
+    } else {
+      // Calculate proportional width for columns I to P
+      const value = values[i];
+      const proportionalWidth = fixedWidths.Q + ((value - minValue) / valueDiff) * fixedWidthDiff;
+      sheet.setColumnWidth(sheet.getRange(col + startRow).getColumn(), proportionalWidth);
+    }
+  }
+}
